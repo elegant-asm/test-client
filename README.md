@@ -1,5 +1,5 @@
 # TestClient
-To be honest I DON'T EVEN KNOW what I did. It's random project src while I were playing around with BepInEx
+To be honest I DON'T EVEN KNOW what I did. It's random project src while I were playing around with BepInEx. Also code is really messy because I'm not that good at C#.
 
 # Installation
 Follow instructions in this video and download .DLL from github Releases.
