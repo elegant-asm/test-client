@@ -27,16 +27,7 @@ internal class ChatModule : MonoBehaviour {
     internal static readonly Dictionary<string, Message> messages = new() {
         { "ClientName",
             new("\n╔╦╗╔═╗░░╔═╗╔╗╔░░╔╦╗╔═╗╔═╗\n░║░║░░░░║░║║║║░░░║░║░║╠═╝\n░╩░╚═╝░░╚═╝╝╚╝░░░╩░╚═╝╩") },
-        { "Fan",
-            new("\n██░░░░████████\n██░░░░██░░░░░░\n██░░░░██░░░░░░\n██████████████\n░░░░░░██░░░░██\n░░░░░░██░░░░██\n████████░░░░██") },
-        { "Dick",
-            new([
-                "\n░░░░▓█───────▄▄▀▀█──────\n░░░░▒░█────▄█▒░░▄░█─────\n░░░░░░░▀▄─▄▀▒▀▀▀▄▄▀──DO─\n░░░░░░░░░█▒░░░░▄▀───YOU─",
-                "\n\n\n\n\n▒▒▒░░░░▄▀▒░░░░▄▀───LIKE─\n▓▓▓▓▒░█▒░░░░░█▄───WHAT─\n█████▀▒░░░░░█░▀▄───YOU──",
-                "\n\n\n\n\n\n\n\n\n█████▒▒░░░▒█░░░▀▄─SEE?──\n███▓▓▒▒▒▀▀▀█▄░░░░█──────\n▓██▓▒▒▒▒▒▒▒▒▒█░░░░█─────"
-                ], 0.6f) },
         { "Censore", new("CENSOREDCENSOREDCENSOREDCENS\nOREDCENSOREDCENSOREDCENSORED\nCENSOREDCENSOREDCENSOREDCENS") },
-        { "UpperGay", new("\n\t\tя гей\n\n\n") },
         { "BanTrollRus", new("\t\t\t\t\t\t\t\t         Вы будете забанены по подозрению в читерстве\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
         { "BanTrollEng", new("\t\t\t\t\t\t\t\t          You will be banned for suspected cheating\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
         { "WhiteLinesCenter",
