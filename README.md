@@ -1,6 +1,21 @@
 # TestClient
 To be honest I DON'T EVEN KNOW what I did. It's random project src while I were playing around with BepInEx. Also code is really messy because I'm not that good at C#.
 
+# Mod Functional
+Uh well there's some test stuff on F1-F6 where:
+
+F1 - fast rejoin
+
+F2 - prints test stuff
+
+F3 - "try" join non listed user servers
+
+F4 - throws grenade and rejoins, funny thing
+
+F5 - nothing really
+
+F6 - nothing really
+
 # Installation
 Follow instructions in this video and download .DLL from github Releases.
 
