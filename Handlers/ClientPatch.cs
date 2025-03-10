@@ -1,7 +1,9 @@
 ﻿using GameClass;
 using HarmonyLib;
 using Player;
+using Steamworks;
 using System.Diagnostics;
+using System.Linq;
 using TestClient.Modules;
 using UnityEngine;
 
@@ -380,10 +382,9 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(HUDMessage), "AddChat", [ typeof(int), typeof(string), typeof(int) ])]
     [HarmonyPrefix]
     private static void HUDMessage_AddChat(int id, string msg, int teamchat) {
-        if (id != Controll.pl.idx)
+        if (id != Controll.pl.idx && PLH.player.FirstOrDefault(player => player.idx == id) != null)
             ChatModule.MessagesCount = 0;
     }
-
 
     //[HarmonyPatch(typeof(Controll), "UpdateMove2")]
     //[HarmonyPrefix]
