@@ -382,7 +382,7 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(HUDMessage), "AddChat", [ typeof(int), typeof(string), typeof(int) ])]
     [HarmonyPrefix]
     private static void HUDMessage_AddChat(int id, string msg, int teamchat) {
-        if (id != Controll.pl.idx && PLH.player.FirstOrDefault(player => player.idx == id) != null)
+        if (id != Controll.pl.idx && PLH.player.FirstOrDefault(player => player != null && player.idx == id) != null)
             ChatModule.MessagesCount = 0;
     }
 
