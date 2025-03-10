@@ -19,7 +19,7 @@ F5 - ничего особенного, закрытие/открытие мен
 F6 - ничего особенного
 
 ## Установка  
-Следуйте инструкциям в этом видео и скачайте .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) из раздела Releases на GitHub.  
+Следуйте инструкциям в этом видео и скачайте .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) из раздела [Releases](https://github.com/evoredact/test-client/releases/latest) на GitHub.  
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg  
 
@@ -47,7 +47,7 @@ F5 - nothing really, close/open menu
 F6 - nothing really
 
 ## Installation
-Follow instructions in this video and download .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) from github Releases.
+Follow instructions in this video and download .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) from github [Releases](https://github.com/evoredact/test-client/releases/latest).
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg
 
