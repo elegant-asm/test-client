@@ -1,9 +1,7 @@
 ﻿using GameClass;
 using HarmonyLib;
 using Player;
-using System;
 using System.Diagnostics;
-using TestClient.Components;
 using TestClient.Modules;
 using UnityEngine;
 
@@ -369,6 +367,141 @@ internal class ClientPatch {
 
         return false;
     }
+
+    [HarmonyPatch(typeof(Client), "send_chatmsg")]
+    [HarmonyPrefix]
+    private static bool send_chatmsg(int teamchat, string msg) {
+        if (ChatModule.MessagesCount > 9) // smart chat
+            return false;
+        ChatModule.MessagesCount++;
+        return true;
+    }
+    
+    [HarmonyPatch(typeof(HUDMessage), "AddChat", [ typeof(int), typeof(string), typeof(int) ])]
+    [HarmonyPrefix]
+    private static void HUDMessage_AddChat(int id, string msg, int teamchat) {
+        if (id != Controll.pl.idx)
+            ChatModule.MessagesCount = 0;
+    }
+
+
+    //[HarmonyPatch(typeof(Controll), "UpdateMove2")]
+    //[HarmonyPrefix]
+    private static bool UpdateMove2(Controll __instance) {
+        Transform trControll = Controll.trControll;
+        if (!trControll)
+            return false;
+
+        PlayerData playerData = Controll.pl;
+        if (playerData == null || playerData.team == 2)
+            return false;
+
+        if (Controll.lockMove) {
+            __instance.UpdateMoveSpeed();
+            __instance.UpdateMoveKey();
+
+            if (Controll.inFreeze) {
+                if (Time.time > Controll.tFreeze) {
+                    Controll.inFreeze = false;
+                    if (Controll.ccc != null)
+                        Controll.ccc.saturation = 1.0f;
+                }
+                Controll.movex = 0f;
+                Controll.movez = 0f;
+            }
+
+            Controll.prevPos = Controll.Pos;
+            Controll.fdeltatime = Controll.fnextFrame - Controll.fcurrFrame;
+
+            Vector3 movement = (trControll.forward * Controll.movex) + (trControll.right * Controll.movez);
+            //movement = new(movement.x, 0f, movement.z);
+            float movementMagnitude = movement.magnitude;
+
+            movement = movementMagnitude > 0.00001f ? movement / movementMagnitude : Vector3.zero;
+
+            //Plugin.Log.LogWarning($"movement {movement}");
+
+            Vector3 air = Movement.MoveAir(Vector3.zero, Controll.vel);
+            Vector3 ground = Movement.MoveGround(movement, Controll.vel);
+
+            Vector3 moved = new(ground.x, air.y, ground.z);
+            //Vector3 moved = Controll.inAir
+            //    ? Movement.MoveAir(Vector3.zero, Controll.vel)
+            //    : Movement.MoveGround(movement, Controll.vel);
+            //Plugin.Log.LogWarning($"velocity {moved}");
+
+            Controll.vel = moved;
+
+            float calcedMagnitude = moved.magnitude;
+            if ((calcedMagnitude * Controll.speed) < 0.01f)
+                Controll.speed = 0f;
+
+            //Plugin.Log.LogWarning($"speed {Controll.speed}");
+            if (Controll.speed > 0) {
+                Vector3 tempPos = new(Controll.Pos.x, 0, Controll.Pos.z);
+
+                Vector3 radc = new Vector3(moved.x, 0, moved.z) * Controll.speed;
+                Vector3 calcNextPos0 = Controll.Pos + radc;
+                __instance.nextPos0 = calcNextPos0; // not sure
+
+                Vector3 radd = new Vector3(moved.x, 0, moved.z) * Controll.speed;
+                Vector3 calcNextPos1 = Controll.Pos + radd;
+                __instance.nextPos1 = calcNextPos1; // not sure
+
+                Vector3 rade = moved * Controll.speed;
+                Vector3 calcNextPos = Controll.Pos + rade;
+                //calcNextPos = new Vector3(calcNextPos.x, 0, calcNextPos.z);
+                Controll.nextPos = calcNextPos; // not sure
+
+                Controll.Pos = Controll.nextPos;
+            }
+        }
+
+        __instance.UpdateMoveJump();
+
+        float realtime = Time.realtimeSinceStartup;
+        Controll.fcurrFrame = realtime - Controll.fdifFrame;
+        Controll.fnextFrame = Controll.fcurrFrame + __instance.cl_fps;
+        Controll.Pos = Controll.ClampPosClip(Controll.Pos);
+        return false;
+    }
+
+    //[HarmonyPatch(typeof(Client), "recv_restorepos")]
+    //[HarmonyPrefix]
+    //private static bool recv_restorepos(Client __instance) {
+    //    //__instance.send_pos_dev(Controll.Pos.x, Controll.Pos.y, Controll.Pos.z, Controll.rx, Controll.ry, 1, Controll.GetServerTime());
+    //    return false;
+    //}
+
+    //[HarmonyPatch(typeof(Controll), "UpdateMoveJump")]
+    //[HarmonyPrefix]
+    //private static bool UpdateMoveJump() {
+    //    if (Controll.inJumpKey && !Controll.inJumpKeyPressed) {
+    //        Controll.velocity = new(0, 2.35f, 0);
+    //        Controll.inJumpKeyPressed = true;
+
+    //        Vector3 down = Vector3.down;
+    //        Vector3 mulResult = down * 0.0020000001f;
+    //        Vector3 temp = new(0, mulResult.x, mulResult.y);
+    //        float zVal = mulResult.z;
+    //        float timestart = Time.time;
+    //        Vector3 v8 = new(temp.y, temp.z, zVal);
+    //        VWIK.AddOffset(v8, timestart, 0.5f, false);
+    //    }
+    //    return false;
+    //}
+
+    [HarmonyPatch(typeof(Client), "send_pos_dev")]
+    [HarmonyPrefix]
+    private static void send_pos_dev(float x, float y, float z, float rx, float ry, byte bitmask, uint time) {
+        Plugin.Log.LogWarning($"send_pos_dev ({x}, {y}, {z}), ({rx}, {ry}), {bitmask}, {time}");
+    }
+
+    //[HarmonyPatch(typeof(Client), "cl_send")]
+    //[HarmonyPrefix]
+    //private static bool cl_send() {
+    //    return !TestComponent.test;
+    //}
 
     // fix to prevent server check my wi
     [HarmonyPatch(typeof(Client), "send_weaponinfo")]

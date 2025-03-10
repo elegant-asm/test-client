@@ -5,8 +5,10 @@ using HarmonyLib;
 using Player;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using TestClient.Utility;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -95,7 +97,7 @@ public class Plugin : BasePlugin {
 
     public override void Load() {
         Log = base.Log;
-        OnPlayerJoin.OnEvent += (_) => { };
+        //OnPlayerJoin.OnEvent += (_) => { };
 
         SceneManager.sceneLoaded += new Action<Scene, LoadSceneMode>(OnSceneLoad);
         SceneManager.sceneUnloaded += new Action<Scene>(OnSceneUnload);

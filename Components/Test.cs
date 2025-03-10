@@ -31,6 +31,7 @@ internal class TestComponent : MonoBehaviour {
     private static readonly string[] IPs = ["85.119.149.187"];
     // public servers ips: 85.119.149.35, 82.202.247.45
     // user servers ips: 85.119.149.187
+    // prob better would be get server info somehow
     private static IEnumerator ConnectThread() {
         foreach (var ip in IPs) {
             for (var i = 40500; i < 40600; i++) {
@@ -158,27 +159,27 @@ internal class TestComponent : MonoBehaviour {
             //Plugin.Log.LogWarning($"a {Controll.vel}");
             //Client.cs.send_pos_dev(Controll.Pos.x - 5.5f, Controll.Pos.y, Controll.Pos.z - 5.5f, Controll.rx, Controll.ry, 4, Controll.GetServerTime());
         }
-        if (Input.GetKeyDown(KeyCode.F5)) {
-            test = !test;
-            Plugin.Log.LogWarning(test);
+        //if (Input.GetKeyDown(KeyCode.F5)) {
+        //    test = !test;
+        //    Plugin.Log.LogWarning(test);
 
-            //StartCoroutine(TestLoop().WrapToIl2Cpp());
+        //    //StartCoroutine(TestLoop().WrapToIl2Cpp());
 
-            //int mask = 0;
-            //mask |= (int)Controll.KeyBase.minus_x;
-            //mask |= (int)Controll.KeyBase.minus_z;
-            //mask |= (int)Controll.KeyBase.jump;
-        }
-        if (Input.GetKeyDown(KeyCode.F6)) {
-            test2 = !test2;
-            Plugin.Log.LogWarning(test2);
+        //    //int mask = 0;
+        //    //mask |= (int)Controll.KeyBase.minus_x;
+        //    //mask |= (int)Controll.KeyBase.minus_z;
+        //    //mask |= (int)Controll.KeyBase.jump;
+        //}
+        //if (Input.GetKeyDown(KeyCode.F6)) {
+        //    test2 = !test2;
+        //    Plugin.Log.LogWarning(test2);
 
-            //int mask = 0;
-            //mask |= (int)Controll.KeyBase.minus_x;
-            //mask |= (int)Controll.KeyBase.minus_z;
-            //mask |= (int)Controll.KeyBase.jump;
-            //Client.cs.send_pos_dev(Controll.Pos.x-5.5f, Controll.Pos.y, Controll.Pos.z-5.5f, Controll.rx, Controll.ry, 4, Controll.GetServerTime());
-        }
+        //    //int mask = 0;
+        //    //mask |= (int)Controll.KeyBase.minus_x;
+        //    //mask |= (int)Controll.KeyBase.minus_z;
+        //    //mask |= (int)Controll.KeyBase.jump;
+        //    //Client.cs.send_pos_dev(Controll.Pos.x-5.5f, Controll.Pos.y, Controll.Pos.z-5.5f, Controll.rx, Controll.ry, 4, Controll.GetServerTime());
+        //}
         if (Input.GetKeyDown(KeyCode.F3)) {
             StartCoroutine(ConnectThread().WrapToIl2Cpp());
         }
