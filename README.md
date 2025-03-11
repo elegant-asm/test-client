@@ -19,7 +19,7 @@ F5 - ничего особенного, закрытие/открытие мен
 F6 - ничего особенного
 
 ## Установка  
-Следуйте инструкциям в этом видео и скачайте .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) из раздела [Releases](https://github.com/evoredact/test-client/releases/latest) на GitHub.  
+Следуйте инструкциям в этом видео и скачайте .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) из раздела [Releases](https://github.com/evoredact/test-client/releases/latest) на GitHub. Из видео вам понадобится BepInEx 6 любой версии, но обязательно Unity.IL2CPP-win-x86. Если не хотите терять время на туториал, то вот просто [ссылка](https://builds.bepinex.dev/projects/bepinex_be/733/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.733%2B995f049.zip) на скачивание архива, закинете содержимое внутрь игры `BLOCKPOST/` и в папку `BepInEx/plugins/` два .DLL файла из Releases.
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg  
 
@@ -47,7 +47,7 @@ F5 - nothing really, close/open menu
 F6 - nothing really
 
 ## Installation
-Follow instructions in this video and download .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) from github [Releases](https://github.com/evoredact/test-client/releases/latest).
+Follow instructions in this video and download .DLL (TestClient.dll, UniverseLib.BIE.IL2CPP.Interop.dll) from github [Releases](https://github.com/evoredact/test-client/releases/latest). From the video, you will need BepInEx 6 of any version, but it must be Unity.IL2CPP-win-x86. If you don't want to waste time on the tutorial, here is a direct [link](https://builds.bepinex.dev/projects/bepinex_be/733/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.733%2B995f049.zip) to download the archive. Just drop its contents into the game folder `BLOCKPOST/` and place two .DLL files from Releases into the `BepInEx/plugins/` folder.
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg
 
