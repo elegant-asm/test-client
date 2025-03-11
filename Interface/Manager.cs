@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using TestClient.Utility;
-using UnityEngine;
+﻿using UnityEngine;
 using UniverseLib;
 using UniverseLib.UI;
-using UniverseLib.UI.Panels;
 
 namespace TestClient.Interface;
 
@@ -23,7 +19,7 @@ internal class Manager : MonoBehaviour {
     void Start() {
         UniverseLib.Config.UniverseLibConfig config = new() {
             Disable_EventSystem_Override = false,
-            Force_Unlock_Mouse = false
+            Force_Unlock_Mouse = true
         };
 
         Universe.Init(1f, OnUniverseInit, LogHandler, config);
