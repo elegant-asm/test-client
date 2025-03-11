@@ -39,7 +39,9 @@ internal class Manager : MonoBehaviour {
     }
 
     private void OnUniverseInit() {
-        UniverseLib.Input.EventSystemHelper.CurrentEventSystem.sendNavigationEvents = false; // to prevent idiotic miss clicks by my keyboard
+        if (UniverseLib.Input.EventSystemHelper.CurrentEventSystem) {
+            UniverseLib.Input.EventSystemHelper.CurrentEventSystem.sendNavigationEvents = false; // to prevent idiotic miss clicks by my keyboard
+        }
         UiBase = UniversalUI.RegisterUI(MyPluginInfo.PLUGIN_GUID, UIUpdate);
         UICanvas = UIRoot.GetComponent<Canvas>();
         UIRootRect = UIRoot.GetComponent<RectTransform>();
@@ -47,7 +49,12 @@ internal class Manager : MonoBehaviour {
         new ExploitPanel(UiBase);
     }
 
-    private void UIUpdate() { }
+    
+    private void UIUpdate() {
+        if (UniverseLib.Input.EventSystemHelper.CurrentEventSystem && UniverseLib.Input.EventSystemHelper.CurrentEventSystem.sendNavigationEvents == true) {
+            UniverseLib.Input.EventSystemHelper.CurrentEventSystem.sendNavigationEvents = false; // universelib loads eventsystem somewhy slow
+        }
+    }
 
     private void LogHandler(string message, LogType type) {
         Plugin.Log.LogWarning($"[{type}] UniverseLib: {message}");
