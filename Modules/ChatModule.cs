@@ -65,7 +65,7 @@ internal class ChatModule : MonoBehaviour {
         for (int i = 0; i < msg.LongLength; i++) {
             var msgLine = msg[i];
             yield return new WaitForSeconds(delay);
-            if (Client.isConnected() && MessagesCount < 10) {
+            if (Client.isConnected() && MessagesCount < 9) {
                 Client.cs?.send_chatmsg(0, msgLine);
             } else
                 break;
@@ -75,7 +75,7 @@ internal class ChatModule : MonoBehaviour {
     internal static IEnumerator SpamMessage() {
         var choice = chatMessage.GetValue();
         while (spamMessageToggle.GetValue()) {
-            if (Client.isConnected() && MessagesCount < 10) {
+            if (Client.isConnected() && MessagesCount < 9) {
                 var message = messages[choice];
                 if (message.Values != null)
                     SendMessage(message.Values, message.Delay);
