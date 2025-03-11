@@ -373,7 +373,7 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(Client), "send_chatmsg")]
     [HarmonyPrefix]
     private static bool send_chatmsg(int teamchat, string msg) {
-        if (ChatModule.MessagesCount > 9) // smart chat
+        if (ChatModule.MessagesCount > 8) // smart chat
             return false;
         ChatModule.MessagesCount++;
         return true;
