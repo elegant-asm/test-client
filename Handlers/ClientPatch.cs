@@ -346,7 +346,7 @@ internal class ClientPatch {
         if (Controll.inDuck || MovementModule.fakeDuckToggle.GetValue())
             mask |= (int)Controll.KeyBase.duck;
 
-        //mask |= 256; // client
+        mask |= 256;
 
         Vector3 pos = Controll.Pos;
 
