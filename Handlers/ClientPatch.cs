@@ -346,7 +346,7 @@ internal class ClientPatch {
         if (Controll.inDuck || MovementModule.fakeDuckToggle.GetValue())
             mask |= (int)Controll.KeyBase.duck;
 
-        mask |= 64; // client
+        //mask |= 256; // client
 
         Vector3 pos = Controll.Pos;
 
@@ -379,7 +379,7 @@ internal class ClientPatch {
         PlayerData playerData = Utility.Players.GetPlayerById(id);
         PlayerSync playerSync = Utility.Players.GetPlayerSyncById(id);
         if (playerData != null && playerSync != null && playerSync.IsClient != true) {
-            if (id != Controll.pl.idx && (bitmask & 64) != 0)
+            if (id != Controll.pl.idx && (bitmask & 256) != 0)
                 playerSync.IsClient = true;
         }
     }
@@ -507,11 +507,11 @@ internal class ClientPatch {
     //    return false;
     //}
 
-    [HarmonyPatch(typeof(Client), "send_pos_dev")]
-    [HarmonyPrefix]
-    private static void send_pos_dev(float x, float y, float z, float rx, float ry, byte bitmask, uint time) {
-        Plugin.Log.LogWarning($"send_pos_dev ({x}, {y}, {z}), ({rx}, {ry}), {bitmask}, {time}");
-    }
+    //[HarmonyPatch(typeof(Client), "send_pos_dev")]
+    //[HarmonyPrefix]
+    //private static void send_pos_dev(float x, float y, float z, float rx, float ry, byte bitmask, uint time) {
+    //    Plugin.Log.LogWarning($"send_pos_dev ({x}, {y}, {z}), ({rx}, {ry}), {bitmask}, {time}");
+    //}
 
     //[HarmonyPatch(typeof(Client), "cl_send")]
     //[HarmonyPrefix]

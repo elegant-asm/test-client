@@ -1,5 +1,6 @@
 ﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
 using Player;
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -202,12 +203,12 @@ internal class TestComponent : MonoBehaviour {
             //PLH.ForceSelectWeapon(Controll.pl.idx, 1000);
             //PLH.SelectWeapon(Controll.pl, "zombiehands");
 
-            var serversList = GUIPlay.srvlist;
-            if (serversList != null )
-                for (int i = 0; i < serversList.Count; i++) {
-                    var server = serversList[i];
-                    Plugin.Log.LogWarning($"ID: {server.idx + 1}, IP: {server.ip}, PORT: {server.port}, STATUS: {server.status}, C: ({server.players}/{server.maxplayers}), ISPRIVATE: {server.privategame}");
-                }
+            //var serversList = GUIPlay.srvlist;
+            //if (serversList != null )
+            //    for (int i = 0; i < serversList.Count; i++) {
+            //        var server = serversList[i];
+            //        Plugin.Log.LogWarning($"ID: {server.idx + 1}, IP: {server.ip}, PORT: {server.port}, STATUS: {server.status}, C: ({server.players}/{server.maxplayers}), ISPRIVATE: {server.privategame}");
+            //    }
 
             //for (int i = 0; i < 5000; i++) {
             //    Client.cs.send_entpos(i, Vector3.zero);
@@ -221,17 +222,17 @@ internal class TestComponent : MonoBehaviour {
             //Client.cs.send_attackblock((int)Controll.pl.currPos.x, (int)Controll.pl.currPos.y, (int)Controll.pl.currPos.z);
             //Controll.pl.currweapon.wi.firetype = 0;
 
-            for (int i = 0; i < PLH.player.Length; i++) {
-                var data = PLH.player[i];
-                if (data == null || data.IsMainPlayer) continue;
-                var dataSync = Utility.Players.GetPlayerSyncById(data.idx);
-                if (dataSync == null) continue;
-                Plugin.Log.LogWarning($"player mov dir {dataSync.MoveDirection}");
-                //var p1 = data.Pos;
-                //var p2 = data.currPos;
-                //Plugin.Log.LogWarning($"pos {p1}");
-                //Plugin.Log.LogWarning($"currpos {p2}");
-            }
+            //for (int i = 0; i < PLH.player.Length; i++) {
+            //    var data = PLH.player[i];
+            //    if (data == null || data.IsMainPlayer) continue;
+            //    var dataSync = Utility.Players.GetPlayerSyncById(data.idx);
+            //    if (dataSync == null) continue;
+            //    Plugin.Log.LogWarning($"player mov dir {dataSync.MoveDirection}");
+            //    //var p1 = data.Pos;
+            //    //var p2 = data.currPos;
+            //    //Plugin.Log.LogWarning($"pos {p1}");
+            //    //Plugin.Log.LogWarning($"currpos {p2}");
+            //}
             //MasterClient.cs.send_questreward(7);
             //if (GUICase.itemcase != null) {
             //    Plugin.Log.LogWarning(GUICase.itemcase.ci?.name);
