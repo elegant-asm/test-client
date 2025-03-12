@@ -5,14 +5,11 @@ using HarmonyLib;
 using Player;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using TestClient.Utility;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace TestClient;
 
@@ -20,7 +17,7 @@ internal class PlayerSync {
     public PlayerData data;
     public bool IsZombie = false;
     public bool IsAlive = false;
-    public bool IsClient = false;
+    //public bool IsClient = false;
     public Vector3 MoveDirection = Vector3.zero;
     public Dictionary<BoxCollider, Vector3> CachedColliders = [];
 

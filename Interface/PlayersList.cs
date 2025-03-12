@@ -84,8 +84,8 @@ internal class PlayersList : MonoBehaviour {
             if (playerMods.Contains(data.name))
                 playerText += " <color=#FF991C>[MOD]</color>";
 
-            if (playerSync.IsClient)
-                playerText += " <color=#90D5FF>[CLIENT]</color>";
+            //if (playerSync.IsClient)
+            //    playerText += " <color=#90D5FF>[CLIENT]</color>";
 
             if (data.team == 2)
                 playerText += " [SPECTATOR]";
