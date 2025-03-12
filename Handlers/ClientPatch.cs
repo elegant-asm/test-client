@@ -346,7 +346,7 @@ internal class ClientPatch {
         if (Controll.inDuck || MovementModule.fakeDuckToggle.GetValue())
             mask |= (int)Controll.KeyBase.duck;
 
-        mask |= 256;
+        mask |= 128;
 
         Vector3 pos = Controll.Pos;
 
@@ -375,11 +375,11 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(PLH), "Pos")]
     [HarmonyPrefix]
     private static void PLH_Pos(int id, float x, float y, float z, float rx, float ry, int bitmask, int ipx, int ipy, int ipz, int irx, int iry) {
-        //Plugin.Log.LogWarning($"Received pos {id}");
+        //Plugin.Log.LogWarning($"Received pos {id}, mask: {bitmask}, ({bitmask & 128})");
         PlayerData playerData = Utility.Players.GetPlayerById(id);
         PlayerSync playerSync = Utility.Players.GetPlayerSyncById(id);
         if (playerData != null && playerSync != null && playerSync.IsClient != true) {
-            if (id != Controll.pl.idx && (bitmask & 256) != 0)
+            if (id != Controll.pl.idx && (bitmask & 128) != 0)
                 playerSync.IsClient = true;
         }
     }
