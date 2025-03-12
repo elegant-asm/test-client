@@ -375,6 +375,7 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(PLH), "Pos")]
     [HarmonyPrefix]
     private static void PLH_Pos(int id, float x, float y, float z, float rx, float ry, int bitmask, int ipx, int ipy, int ipz, int irx, int iry) {
+        //Plugin.Log.LogWarning($"Received pos {id}");
         PlayerData playerData = Utility.Players.GetPlayerById(id);
         PlayerSync playerSync = Utility.Players.GetPlayerSyncById(id);
         if (playerData != null && playerSync != null && playerSync.IsClient != true) {
@@ -395,6 +396,7 @@ internal class ClientPatch {
     [HarmonyPatch(typeof(HUDMessage), "AddChat", [ typeof(int), typeof(string), typeof(int) ])]
     [HarmonyPrefix]
     private static void HUDMessage_AddChat(int id, string msg, int teamchat) {
+        //Plugin.Log.LogWarning($"{id} ({teamchat}): {msg}");
         if (id != Controll.pl.idx && PLH.player.FirstOrDefault(player => player != null && player.idx == id) != null)
             ChatModule.MessagesCount = 0;
     }

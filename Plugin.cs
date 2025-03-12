@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using TestClient.Utility;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace TestClient;
 
