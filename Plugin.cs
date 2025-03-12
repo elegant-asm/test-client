@@ -19,6 +19,7 @@ internal class PlayerSync {
     public PlayerData data;
     public bool IsZombie = false;
     public bool IsAlive = false;
+    public bool IsClient = false;
     public Vector3 MoveDirection = Vector3.zero;
     public Dictionary<BoxCollider, Vector3> CachedColliders = [];
 

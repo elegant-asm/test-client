@@ -346,6 +346,8 @@ internal class ClientPatch {
         if (Controll.inDuck || MovementModule.fakeDuckToggle.GetValue())
             mask |= (int)Controll.KeyBase.duck;
 
+        mask |= 64; // client
+
         Vector3 pos = Controll.Pos;
 
         uint serverTime = Controll.GetServerTime();
@@ -368,6 +370,17 @@ internal class ClientPatch {
             Controll.inStuck = false;
 
         return false;
+    }
+
+    [HarmonyPatch(typeof(PLH), "Pos")]
+    [HarmonyPrefix]
+    private static void PLH_Pos(int id, float x, float y, float z, float rx, float ry, int bitmask, int ipx, int ipy, int ipz, int irx, int iry) {
+        PlayerData playerData = Utility.Players.GetPlayerById(id);
+        PlayerSync playerSync = Utility.Players.GetPlayerSyncById(id);
+        if (playerData != null && playerSync != null && playerSync.IsClient != true) {
+            if (id != Controll.pl.idx && (bitmask & 64) != 0)
+                playerSync.IsClient = true;
+        }
     }
 
     [HarmonyPatch(typeof(Client), "send_chatmsg")]
