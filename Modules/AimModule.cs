@@ -78,7 +78,7 @@ internal class AimModule : MonoBehaviour {
                 }
 
                 fireRate = wInfo.firerate;
-                isWeapon = wInfo.slot == 0 || wInfo.slot == 1 || wInfo.id == 1000;
+                isWeapon = wInfo.slot == 0 || wInfo.slot == 1;
                 wInv = PLH.GetWeaponInv(client, currWeapon.weaponname);
                 if (wInv == null) {
                     yield return null;
@@ -173,7 +173,7 @@ internal class AimModule : MonoBehaviour {
                     for (int j = 0; j < iterations; j++) {
                         Vector3 point = wideRange ? samplePoints[j] : cameraPosition;
                         if (IsBodyPartVisible(point, player.tr, playerBodyPart, out Vector3 hitPoint, isVoxelResolution, iVoxelResolution)) {
-                            if (wInfo != null && wInfo.slot == 2 && (point - bodyPartPosition).magnitude > 7)
+                            if (wInfo != null && wInfo.slot == 2 && wInfo.id != 1000 && (point - bodyPartPosition).magnitude > 7)
                                 continue;
 
                             if (wideRange && csCam != null && wInfo != null && wInfo.slot == 2) {
