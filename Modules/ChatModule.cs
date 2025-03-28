@@ -29,11 +29,11 @@ internal class ChatModule : MonoBehaviour {
         { "ClientName",
             new("\n╔╦╗╔═╗░░╔═╗╔╗╔░░╔╦╗╔═╗╔═╗\n░║░║░░░░║░║║║║░░░║░║░║╠═╝\n░╩░╚═╝░░╚═╝╝╚╝░░░╩░╚═╝╩") },
         { "AdDef",
-            new("FREE OP CHEAT github,com\\evoredact\\test-client") },
+            new("BAZA MOD github,com\\evoredact\\test-client") },
         { "AdCenter",
-            new("\t\t\t\t\t\t\t\t         FREE OP CHEAT github,com\\evoredact\\test-client\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
+            new("\t\t\t\t\t\t\t\t         BAZA MOD github,com\\evoredact\\test-client\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
         { "AdBelowCenter",
-            new("\n\n\n\n\t\t\t\t\t\t\t\t         FREE OP CHEAT github,com\\evoredact\\test-client") },
+            new("\n\n\n\n\t\t\t\t\t\t\t\t         BAZA MOD github,com\\evoredact\\test-client") },
         { "BanTrollRus", new("\t\t\t\t\t\t\t\t         Вы будете забанены по подозрению в читерстве\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
         { "BanTrollEng", new("\t\t\t\t\t\t\t\t          You will be banned for suspected cheating\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n") },
         { "WhiteLinesCenter",
@@ -47,7 +47,9 @@ internal class ChatModule : MonoBehaviour {
         { "WhiteSquares",
             new("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████\n\n") },
         { "Sosat",
-            new("\n█▀▀░█▀█░█▀▀░▄▀▄░▀█▀░█░░\n█░░░█░█░█░░░█▀█░░█░░█▀█\n▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀") }
+            new("\n█▀▀░█▀█░█▀▀░▄▀▄░▀█▀░█░░\n█░░░█░█░█░░░█▀█░░█░░█▀█\n▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀") },
+        { "OnKillBaza",
+            new("-1 BAZA") }
     };
     internal static readonly string[] messageItems = messages.Keys.ToArray();
 

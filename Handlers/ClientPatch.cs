@@ -384,6 +384,26 @@ internal class ClientPatch {
     //    }
     //}
 
+    //[HarmonyPatch(typeof(UIMPlay), "Awake")]
+    //[HarmonyPrefix]
+    //private static void UIMPlay_Awake() {
+    //    Main.gameconfig = 5;
+    //    MasterClient.cs.send_softpoki();
+    //}
+
+    //[HarmonyPatch(typeof(MainManager), "Awake")]
+    //[HarmonyPrefix]
+    //private static void MainManager_Awake() {
+    //    Main.gameconfig = 5;
+    //}
+
+    //[HarmonyPatch(typeof(MainManager), "SteamInit")]
+    //[HarmonyPrefix]
+    //private static bool MainManager_SteamInit() {
+    //    Main.gameconfig = 5;
+    //    return false;
+    //}
+
     [HarmonyPatch(typeof(Client), "send_chatmsg")]
     [HarmonyPrefix]
     private static bool send_chatmsg(int teamchat, string msg) {
