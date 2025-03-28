@@ -78,7 +78,7 @@ internal class AimModule : MonoBehaviour {
                 }
 
                 fireRate = wInfo.firerate;
-                isWeapon = wInfo.slot == 0 || wInfo.slot == 1;
+                isWeapon = wInfo.slot == 0 || wInfo.slot == 1 || wInfo.slot == 1000;
                 wInv = PLH.GetWeaponInv(client, currWeapon.weaponname);
                 if (wInv == null) {
                     yield return null;

@@ -192,7 +192,7 @@ internal class TestComponent : MonoBehaviour {
             if (Controll.pl != null && Controll.pl.currweapon != null) {
                 WeaponInfo wInfo = GUIInv.GetWeaponInfo(Controll.pl.currweapon.weaponname);
                 Plugin.Log.LogWarning(Controll.nextweaponkey);
-                Plugin.Log.LogWarning($"{wInfo.name}, {wInfo.recoil}, {wInfo.accuracy}, {wInfo.firerate}, {wInfo.firetype}, {wInfo.piercing}, {Controll.pl.currweapon.wi.firetype}");
+                Plugin.Log.LogWarning($"[{wInfo.slot}] ({wInfo.name}, {wInfo.id}), {wInfo.recoil}, {wInfo.accuracy}, {wInfo.firerate}, {wInfo.firetype}, {wInfo.piercing}, {Controll.pl.currweapon.wi.firetype}");
             }
             Plugin.Log.LogWarning(Controll.pl.bstate);
             Plugin.Log.LogWarning(Client.isConnected());
