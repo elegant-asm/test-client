@@ -372,6 +372,19 @@ internal class ClientPatch {
         return false;
     }
 
+    [HarmonyPatch(typeof(Client), "recv_drop")]
+    [HarmonyPrefix]
+    private static void recv_drop() {
+        Plugin.Log.LogWarning("recv_drop");
+        //return false;
+    }
+
+    [HarmonyPatch(typeof(Client), "send_file_start")]
+    [HarmonyPrefix]
+    private static void send_file_start(int filetype, string filename, int filesize) {
+        Plugin.Log.LogWarning($"send_file_start {filetype}, {filename}, {filesize}");
+    }
+
     //[HarmonyPatch(typeof(PLH), "Pos")]
     //[HarmonyPrefix]
     //private static void PLH_Pos(int id, float x, float y, float z, float rx, float ry, int bitmask, int ipx, int ipy, int ipz, int irx, int iry) {
@@ -421,18 +434,19 @@ internal class ClientPatch {
             ChatModule.MessagesCount = 0;
     }
 
-    //[HarmonyPatch(typeof(Controll), "UpdateMove2")]
-    //[HarmonyPrefix]
+    [HarmonyPatch(typeof(Controll), "UpdateMove2")]
+    [HarmonyPrefix]
     private static bool UpdateMove2(Controll __instance) {
-        Transform trControll = Controll.trControll;
-        if (!trControll)
+        if (MovementModule.betterMovementToggle != null && !MovementModule.betterMovementToggle.GetValue())
+            return true;
+
+        if (Controll.trControll == null)
             return false;
 
-        PlayerData playerData = Controll.pl;
-        if (playerData == null || playerData.team == 2)
+        if (Controll.pl == null || Controll.pl.team == 2)
             return false;
 
-        if (Controll.lockMove) {
+        if (!Controll.lockMove) {
             __instance.UpdateMoveSpeed();
             __instance.UpdateMoveKey();
 
@@ -449,47 +463,68 @@ internal class ClientPatch {
             Controll.prevPos = Controll.Pos;
             Controll.fdeltatime = Controll.fnextFrame - Controll.fcurrFrame;
 
-            Vector3 movement = (trControll.forward * Controll.movex) + (trControll.right * Controll.movez);
-            //movement = new(movement.x, 0f, movement.z);
-            float movementMagnitude = movement.magnitude;
-
-            movement = movementMagnitude > 0.00001f ? movement / movementMagnitude : Vector3.zero;
-
-            //Plugin.Log.LogWarning($"movement {movement}");
+            Vector3 movement = (Controll.trControll.forward * Controll.movex) + (Controll.trControll.right * Controll.movez);
+            float mag = movement.magnitude;
+            if (mag > 0.00001f)
+                movement /= mag;
+            else
+                movement = Vector3.zero;
 
             Vector3 air = Movement.MoveAir(Vector3.zero, Controll.vel);
             Vector3 ground = Movement.MoveGround(movement, Controll.vel);
-
             Vector3 moved = new(ground.x, air.y, ground.z);
-            //Vector3 moved = Controll.inAir
-            //    ? Movement.MoveAir(Vector3.zero, Controll.vel)
-            //    : Movement.MoveGround(movement, Controll.vel);
-            //Plugin.Log.LogWarning($"velocity {moved}");
-
             Controll.vel = moved;
 
-            float calcedMagnitude = moved.magnitude;
-            if ((calcedMagnitude * Controll.speed) < 0.01f)
+            if (Controll.vel.magnitude * Controll.speed < 0.01f)
                 Controll.speed = 0f;
 
-            //Plugin.Log.LogWarning($"speed {Controll.speed}");
-            if (Controll.speed > 0) {
-                Vector3 tempPos = new(Controll.Pos.x, 0, Controll.Pos.z);
+            if (Controll.speed > 0f) {
+                Vector3 nextPos = Controll.Pos + Controll.vel * Controll.speed;
 
-                Vector3 radc = new Vector3(moved.x, 0, moved.z) * Controll.speed;
-                Vector3 calcNextPos0 = Controll.Pos + radc;
-                __instance.nextPos0 = calcNextPos0; // not sure
-
-                Vector3 radd = new Vector3(moved.x, 0, moved.z) * Controll.speed;
-                Vector3 calcNextPos1 = Controll.Pos + radd;
-                __instance.nextPos1 = calcNextPos1; // not sure
-
-                Vector3 rade = moved * Controll.speed;
-                Vector3 calcNextPos = Controll.Pos + rade;
-                //calcNextPos = new Vector3(calcNextPos.x, 0, calcNextPos.z);
-                Controll.nextPos = calcNextPos; // not sure
-
-                Controll.Pos = Controll.nextPos;
+                if (VUtil.isValidBBox(nextPos, Controll.radius, Controll.boxheight)) {
+                    Controll.Pos = nextPos;
+                } else if (!Controll.inAir) {
+                    Vector3 stepUpPos = Controll.Pos + new Vector3(0, 1f, 0);
+                    Vector3 stepNextPos = stepUpPos + new Vector3(Controll.vel.x * Controll.speed, 0f, Controll.vel.z * Controll.speed);
+                    if (VUtil.isValidBBox(stepNextPos, Controll.radius, Controll.boxheight)) {
+                        Controll.Pos = stepNextPos;
+                    } else {
+                        Vector3 nextPosX = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, 0f, 0f);
+                        if (VUtil.isValidBBox(nextPosX, Controll.radius, Controll.boxheight)) {
+                            Controll.Pos = nextPosX;
+                        } else {
+                            Vector3 nextPosZ = Controll.Pos + new Vector3(0f, 0f, Controll.vel.z * Controll.speed);
+                            if (VUtil.isValidBBox(nextPosZ, Controll.radius, Controll.boxheight)) {
+                                Controll.Pos = nextPosZ;
+                            } else {
+                                Vector3 stepNextPosX = stepUpPos + new Vector3(Controll.vel.x * Controll.speed, 0f, 0f);
+                                if (VUtil.isValidBBox(stepNextPosX, Controll.radius, Controll.boxheight)) {
+                                    Controll.Pos = stepNextPosX;
+                                } else {
+                                    Vector3 stepNextPosZ = stepUpPos + new Vector3(0f, 0f, Controll.vel.z * Controll.speed);
+                                    if (VUtil.isValidBBox(stepNextPosZ, Controll.radius, Controll.boxheight)) {
+                                        Controll.Pos = stepNextPosZ;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Vector3 nextAirPos = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, Controll.vel.y * Controll.speed, Controll.vel.z * Controll.speed);
+                    if (VUtil.isValidBBox(nextAirPos, Controll.radius, Controll.boxheight)) {
+                        Controll.Pos = nextAirPos;
+                    } else {
+                        Vector3 nextPosX = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, Controll.vel.y * Controll.speed, 0f);
+                        if (VUtil.isValidBBox(nextPosX, Controll.radius, Controll.boxheight)) {
+                            Controll.Pos = nextPosX;
+                        } else {
+                            Vector3 nextPosZ = Controll.Pos + new Vector3(0f, Controll.vel.y * Controll.speed, Controll.vel.z * Controll.speed);
+                            if (VUtil.isValidBBox(nextPosZ, Controll.radius, Controll.boxheight)) {
+                                Controll.Pos = nextPosZ;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -499,6 +534,7 @@ internal class ClientPatch {
         Controll.fcurrFrame = realtime - Controll.fdifFrame;
         Controll.fnextFrame = Controll.fcurrFrame + __instance.cl_fps;
         Controll.Pos = Controll.ClampPosClip(Controll.Pos);
+
         return false;
     }
 

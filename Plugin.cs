@@ -40,10 +40,9 @@ internal class PlayerSync {
 }
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[HarmonyPatch]
 public class Plugin : BasePlugin {
     internal static new ManualLogSource Log;
-    internal static Harmony Harmony = new("redact.TestClient");
+    internal static Harmony Harmony = new("elegant-asm.TestClient");
 
     internal static readonly List<int> Deathmatches = [8, 2];
 

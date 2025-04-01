@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace TestClient.Modules;
 internal class MovementModule : MonoBehaviour {
+    internal static ToggleModule betterMovementToggle;
     internal static ToggleModule overrideWalkSpeedToggle;
     internal static SliderModule walkSpeed;
     internal static ToggleModule fakeDuckToggle;
@@ -11,6 +12,7 @@ internal class MovementModule : MonoBehaviour {
     internal static KeyBindModule freeFlyKeyBind;
 
     void Awake() {
+        betterMovementToggle = ExploitPanel.configurableModules["BetterMovement"] as ToggleModule;
         overrideWalkSpeedToggle = ExploitPanel.configurableModules["OverrideWalkSpeed"] as ToggleModule;
         walkSpeed = ExploitPanel.configurableModules["WalkSpeed"] as SliderModule;
         fakeDuckToggle = ExploitPanel.configurableModules["FakeDuck"] as ToggleModule;
