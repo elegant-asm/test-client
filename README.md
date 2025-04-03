@@ -23,8 +23,8 @@ F6 - ничего особенного
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg  
 
-Кстати, кто-то записал геймплей с TestClient, если хотите посмотреть, вот ссылка:  
-> https://www.youtube.com/watch?v=tLSW_bM8OGI
+Геймплей с TestClient, если хотите посмотреть, вот ссылка:  
+> [https://www.youtube.com/watch?v=tLSW_bM8OGI](https://www.youtube.com/watch?v=ou8wzdTCJl0)
 
 # ENG
 
@@ -51,5 +51,5 @@ Follow instructions in this video and download .DLL (TestClient.dll, UniverseLib
 
 > https://www.youtube.com/watch?v=kA1J2K4pcjg
 
-Also someone recorded TestClient gameplay, if you would like to see then it's here.
+Recorded TestClient gameplay, if you would like to see then it's here.
 > https://www.youtube.com/watch?v=tLSW_bM8OGI
