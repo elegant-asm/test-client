@@ -50,8 +50,10 @@ public class Plugin : BasePlugin {
 
     #region Round Start/End Events
     internal static bool IsRoundStarted = false;
+    internal static bool IsGameInProgress = false;
     internal static Utility.Events.BindableEvent OnRoundStart = new((_) => {
         IsRoundStarted = true;
+        IsGameInProgress = true;
         Controll.specialtime_end = 0f; // grenade glitch fix
     });
     internal static Utility.Events.BindableEvent OnRoundEnd = new((_) => {
@@ -59,7 +61,7 @@ public class Plugin : BasePlugin {
     });
     #endregion
 
-    #region Player Join/Leave/Death, Players Clear Events
+    #region Player Join/Leave/Spawn/Death, Players Clear Events
     /// <summary>
     /// Returns PlayerData as first arg
     /// </summary>
@@ -73,11 +75,17 @@ public class Plugin : BasePlugin {
     ///// <summary>
     ///// Returns PlayerData as first arg
     ///// </summary>
+    internal static Utility.Events.BindableEvent OnPlayerSpawn = new();
+    ///// <summary>
+    ///// Returns PlayerData as first arg
+    ///// </summary>
     //internal static Utility.Events.BindableEvent OnPlayerDeath = new();
     /// <summary>
     /// Returns PlayerData as first arg
     /// </summary>
-    internal static Utility.Events.BindableEvent OnPlayersClear = new();
+    internal static Utility.Events.BindableEvent OnPlayersClear = new((_) => {
+        IsGameInProgress = false;
+    });
     #endregion
 
     //#region GameLoad Event
@@ -119,6 +127,76 @@ public class Plugin : BasePlugin {
             Log.LogWarning($"Processing component {component.Name}");
             World.CreateProtectedComponent(component, componentsHolder);
         }
+
+        // TODO: CHECK ALL PLAYERPREFS USAGES
+
+        // Client.ProcessData
+        // proto 0xF5
+
+        // MasterClient.ProcessData
+        // MasterClient.buffer[0] - proto
+        // MasterClient.buffer[1] - packetid
+        // if packet > 0xC8
+        //  if packet > 0xDD
+        //   0xE6 - vk auth
+        //   0xE7 - isvk + show gold gui
+        //   0xF0 - 
+        //  0xCA - removed some key from PlayerPrefs
+        //  0xDD - sends something back to server (requires debug)
+        //  sends vk auth
+        // if packet <= 0x5A
+        //  0 - sets authed to true
+        //  1 - does something with rRightMsg and sOnline, if vk does something additional
+        //  2 - sets ip and port
+        //  3 - recv_list
+        //  5 - recv_customplay
+        //  6 - recv_acq
+        //  0xA - closes TCP (never got it)
+        //  0x1E - updates weapon frags
+        //  0x29 - recv_set
+        //  0x2B - recv_stats
+        //  0x2C - recv_options
+        //  0x2E - recv_character
+        //  0x30 - recv_name
+        //  0x31 - recv_profile
+        //  0x32 - recv_inv_(weapon/case/key/playerskin)_pass
+        //  0x33 - recv_weaponinfo
+        //  0x35 - recv_caseinfo
+        //  0x36 - recv_keyinfo
+        //  0x37 - interacts with GUIShop, sets buycode and if buycode = 1 then inlock = 0
+        //  0x38 - starts case roll
+        //  0x39 - ends craft
+        //  0x3A - recv_questlist
+        //  0x3B - Main.SetMenuNewItem
+        //  0x3C - recv_topplayer
+        //  0x3E - recv_questload
+        //  0x40 - recv_shop
+        //  0x41 - GUICraft sell end
+        //  0x42 - sets GUICraft cs_sec to received long value
+        //  0x43 - GUIBonus set
+        //  0x44 - recv_clanbase
+        //  0x45 - sets clanid owner and clanname owner to received values
+        //  0x46 - recv_clancreate
+        //  0x47 - recv_clanlist
+        //  0x48 - recv_clanfind
+        //  0x49 - recv_clanplayer
+        //  0x4B - recv_clanmessage
+        //  0x50 - sets clanstatus and clannamecount
+        //  0x52 - recv_clanstats
+        //  0x53 - recv_clanplayerstats
+        //  0x54 - recv_clanchatlist
+        //  0x55 - recv_clanchatsend
+        //  0x56 - recv_topclan
+        //  0x57 - sets something to received value
+        //  0x58 - recv_playerskininfo
+        //  0x5A - sets mainmanager mod to true, mkey to received string value
+        //  4, 7, 8, 9 empty
+        // 0x6F - console log message
+        // 0x70 - recv_error
+        // 0xC8 - if steam sends vk auth
+
+        // Client - server connection controller
+        // MasterClient - user connection controller
 
         // maybe i should change players tab into separated panel?
         // try build block place, like stuck player

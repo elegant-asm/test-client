@@ -32,6 +32,8 @@ internal class VisualsModule : MonoBehaviour {
             if (clientSync == null)
                 return;
 
+            Camera camera = AdditionalModule.thirdPersonToggle.GetValue() ? AdditionalModule.customCamera : Controll.csCam;
+
             for (int i = 0; i < PLH.player.Length; i++) {
                 var player = PLH.player[i];
                 if (player == null || player.IsMainPlayer)
@@ -49,9 +51,9 @@ internal class VisualsModule : MonoBehaviour {
                 Vector3 position4 = new(position2.x, position2.y + 0.7f, position2.z);
 
                 // ig it should be changed to custom camera if used 3rd person view
-                Vector3 screenPos = Controll.csCam.WorldToScreenPoint(position);
-                Vector3 screenPosHead = Controll.csCam.WorldToScreenPoint(position4);
-                Vector3 screenPosFeet = Controll.csCam.WorldToScreenPoint(position3);
+                Vector3 screenPos = camera.WorldToScreenPoint(position);
+                Vector3 screenPosHead = camera.WorldToScreenPoint(position4);
+                Vector3 screenPosFeet = camera.WorldToScreenPoint(position3);
 
                 if (screenPos.z > 0f) {
                     float boxHeight = screenPosHead.y - screenPosFeet.y;

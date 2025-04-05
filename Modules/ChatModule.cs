@@ -6,12 +6,15 @@ using UnityEngine;
 
 namespace TestClient.Modules;
 internal class ChatModule : MonoBehaviour {
+    internal static ToggleModule chatFilterToggle;
     internal static DropdownModule chatMessage;
     internal static SliderModule spamMessageDelay;
     internal static ToggleModule spamMessageToggle;
     internal static ToggleModule sendOnKillToggle;
 
     internal static int MessagesCount = 0;
+
+    internal static readonly string[] filterSymbols = ["█", "░", "\t", "\n", "\r", "\b", "\f", "\v", "  "];
 
     internal class Message {
         public string Value { get; }
@@ -45,7 +48,7 @@ internal class ChatModule : MonoBehaviour {
                 //"\t\t\t\t\t\t\t\t          ███████████████████████████████\n\t\t\t\t\t\t\t███████████████████████████████\n\n\n\n\n\n\n\n\n\n\n"
             ], 0.7f) },
         { "WhiteSquares",
-            new("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████\n\n") },
+            new("████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████") },
         { "Sosat",
             new("\n█▀▀░█▀█░█▀▀░▄▀▄░▀█▀░█░░\n█░░░█░█░█░░░█▀█░░█░░█▀█\n▀▀▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀") },
         { "OnKillBaza",
@@ -54,6 +57,7 @@ internal class ChatModule : MonoBehaviour {
     internal static readonly string[] messageItems = messages.Keys.ToArray();
 
     void Awake() {
+        chatFilterToggle = ExploitPanel.configurableModules["ChatFilter"] as ToggleModule;
         chatMessage = ExploitPanel.configurableModules["ChatMessage"] as DropdownModule;
         spamMessageDelay = ExploitPanel.configurableModules["SpamMessageDelay"] as SliderModule;
         spamMessageToggle = ExploitPanel.configurableModules["SpamMessage"] as ToggleModule;

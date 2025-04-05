@@ -2,8 +2,11 @@
 using Player;
 using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using UniverseLib;
 
 namespace TestClient.Components;
 
@@ -160,17 +163,22 @@ internal class TestComponent : MonoBehaviour {
             //Plugin.Log.LogWarning($"a {Controll.vel}");
             //Client.cs.send_pos_dev(Controll.Pos.x - 5.5f, Controll.Pos.y, Controll.Pos.z - 5.5f, Controll.rx, Controll.ry, 4, Controll.GetServerTime());
         }
-        //if (Input.GetKeyDown(KeyCode.F5)) {
-        //    test = !test;
-        //    Plugin.Log.LogWarning(test);
 
-        //    //StartCoroutine(TestLoop().WrapToIl2Cpp());
+        if (Input.GetKeyDown(KeyCode.F2)) {
+            //Vector3 blockPos = Controll.Pos;
+            //VoxelMap.SetBlock((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, Color.magenta, 1);
+            //VoxelMap.RenderBlock((int)blockPos.x, (int)blockPos.y, (int)blockPos.z);
+            //    test = true;
+            //Controll.Pos = new(Controll.Pos.x, -1f, Controll.Pos.z);
+            //    Plugin.Log.LogWarning(test);
 
-        //    //int mask = 0;
-        //    //mask |= (int)Controll.KeyBase.minus_x;
-        //    //mask |= (int)Controll.KeyBase.minus_z;
-        //    //mask |= (int)Controll.KeyBase.jump;
-        //}
+            //    //StartCoroutine(TestLoop().WrapToIl2Cpp());
+
+            //    //int mask = 0;
+            //    //mask |= (int)Controll.KeyBase.minus_x;
+            //    //mask |= (int)Controll.KeyBase.minus_z;
+            //    //mask |= (int)Controll.KeyBase.jump;
+        }
         //if (Input.GetKeyDown(KeyCode.F6)) {
         //    test2 = !test2;
         //    Plugin.Log.LogWarning(test2);
@@ -196,6 +204,15 @@ internal class TestComponent : MonoBehaviour {
             }
             Plugin.Log.LogWarning(Controll.pl.bstate);
             Plugin.Log.LogWarning(Client.isConnected());
+
+            //Plugin.Log.LogWarning("MaxAirAccel " + Movement.max_velocity_air);
+            //Plugin.Log.LogWarning("MaxGroundAccel " + Movement.max_velocity_ground);
+            //Plugin.Log.LogWarning("AirAccel " + Movement.air_accelerate);
+            //Plugin.Log.LogWarning("GroundAccel " + Movement.ground_accelerate);
+
+            //AssetBundle bundle = Utility.Bundles.LoadBundle("test");
+            //AudioSource audioSource = bundle.LoadAsset<AudioSource>("CashRegisterEffect");
+            //audioSource.Play();
 
             //Controll.specialtime_end = 0f;
 
@@ -290,13 +307,4 @@ internal class TestComponent : MonoBehaviour {
         //    }
         //}
     }
-
-    //private IEnumerator sendArrayMsg(string[] msg) {
-    //    for (int i = 0; i < msg.Length; i++) {
-    //        var msgLine = msg[i];
-    //        yield return new WaitForSeconds(0.5f);
-    //        Plugin.Log.LogWarning("send");
-    //        Client.cs.send_chatmsg(0, msgLine);
-    //    }
-    //}
 }

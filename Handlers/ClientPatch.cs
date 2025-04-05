@@ -2,10 +2,13 @@
 using HarmonyLib;
 using Player;
 using Steamworks;
+using System;
 using System.Diagnostics;
 using System.Linq;
+using TestClient.Components;
 using TestClient.Modules;
 using UnityEngine;
+using static TestClient.Interface.ExploitPanel.Movement;
 
 namespace TestClient.Handlers;
 [HarmonyPatch]
@@ -268,11 +271,11 @@ internal class ClientPatch {
                     if (data == null || data.IsMainPlayer)
                         continue;
                     PlayerSync dataSync = Utility.Players.GetPlayerSyncById(data.idx);
-                    if (dataSync == null)
+                    if (dataSync == null || !dataSync.IsAlive)
                         continue;
 
                     PlayerSync clientSync = Utility.Players.GetPlayerSyncById(client.idx);
-                    if (clientSync == null || Utility.Players.IsInSameTeam(clientSync, dataSync))
+                    if (clientSync == null || !clientSync.IsAlive || Utility.Players.IsInSameTeam(clientSync, dataSync))
                         continue;
 
                     float clientToTargetDistance = Vector3.Distance(client.Pos, data.Pos);
@@ -292,11 +295,11 @@ internal class ClientPatch {
                     if (data == null || data.IsMainPlayer)
                         continue;
                     PlayerSync dataSync = Utility.Players.GetPlayerSyncById(data.idx);
-                    if (dataSync == null)
+                    if (dataSync == null || !dataSync.IsAlive)
                         continue;
 
                     PlayerSync clientSync = Utility.Players.GetPlayerSyncById(client.idx);
-                    if (clientSync == null || Utility.Players.IsInSameTeam(clientSync, dataSync))
+                    if (clientSync == null || !clientSync.IsAlive || Utility.Players.IsInSameTeam(clientSync, dataSync))
                         continue;
 
                     Vector3 targetPoint = csCam.WorldToScreenPoint(data.Pos);
@@ -311,9 +314,11 @@ internal class ClientPatch {
                         }
                     }
                 }
-            } else if (AntiAimModule.antiAimTarget.GetValue() == AntiAimModule.Target[3]) {
-                targetData = PlayersModule.targetData;
-                targetSync = Utility.Players.GetPlayerSyncById(targetData.idx);
+            } else if (AntiAimModule.antiAimTarget.GetValue() == AntiAimModule.Target[3] && PlayersModule.targetData != null && PlayersModule.targetSync != null) {
+                if (PlayersModule.targetSync.IsAlive) {
+                    targetData = PlayersModule.targetData;
+                    targetSync = PlayersModule.targetSync;
+                }
             }
             if (targetData != null && targetSync != null) {
                 Vector3 direction = targetData.Pos - client.Pos;
@@ -428,8 +433,14 @@ internal class ClientPatch {
     
     [HarmonyPatch(typeof(HUDMessage), "AddChat", [ typeof(int), typeof(string), typeof(int) ])]
     [HarmonyPrefix]
-    private static void HUDMessage_AddChat(int id, string msg, int teamchat) {
+    private static void HUDMessage_AddChat(int id, ref string msg, int teamchat) {
         //Plugin.Log.LogWarning($"{id} ({teamchat}): {msg}");
+        if (ChatModule.chatFilterToggle.GetValue()) {
+            for (int i = 0; i < ChatModule.filterSymbols.Length; i++) {
+                string filterSymbol = ChatModule.filterSymbols[i];
+                msg = msg.Replace(filterSymbol, "");
+            }
+        }
         if (id != Controll.pl.idx && PLH.player.FirstOrDefault(player => player != null && player.idx == id) != null)
             ChatModule.MessagesCount = 0;
     }
@@ -443,9 +454,14 @@ internal class ClientPatch {
         if (Controll.trControll == null)
             return false;
 
-        if (Controll.pl == null || Controll.pl.team == 2)
+        if (Controll.csCam == null)
             return false;
 
+        PlayerData client = Controll.pl;
+        if (client == null || client.team == 2)
+            return false;
+
+        bool stepped = false;
         if (!Controll.lockMove) {
             __instance.UpdateMoveSpeed();
             __instance.UpdateMoveKey();
@@ -473,6 +489,61 @@ internal class ClientPatch {
             Vector3 air = Movement.MoveAir(Vector3.zero, Controll.vel);
             Vector3 ground = Movement.MoveGround(movement, Controll.vel);
             Vector3 moved = new(ground.x, air.y, ground.z);
+
+            float yLimit = MovementModule.targetStrafeYLimit.GetValue();
+            bool ignoreSpawnProtect = MovementModule.targetStrafeIgnoreSpawnProtect.GetValue();
+
+            if (MovementModule.targetStrafeToggle.GetValue()) {
+                Vector3 targetPlayerPos = Vector3.zero;
+                string strafeType = MovementModule.targetStrafeType.GetValue();
+                if (strafeType == MovementModule.targetStrafeTypes[1] && PlayersModule.targetData != null && PlayersModule.targetSync != null) {
+                    if (PlayersModule.targetSync.IsAlive)
+                        targetPlayerPos = PlayersModule.targetData.Pos;
+                } else if (strafeType == MovementModule.targetStrafeTypes[0]) {
+                    float triggerDistance = MovementModule.targetStrafeDistanceTrigger.GetValue();
+                    float minPlayerDist = -1f;
+                    for (int i = 0; i < PLH.player.Length; i++) {
+                        PlayerData data = PLH.player[i];
+                        if (data == null || data.IsMainPlayer || (!ignoreSpawnProtect && data.spawnprotect))
+                            continue;
+                        PlayerSync dataSync = Utility.Players.GetPlayerSyncById(data.idx);
+                        if (dataSync == null || !dataSync.IsAlive)
+                            continue;
+                        PlayerSync clientSync = Utility.Players.GetPlayerSyncById(client.idx);
+                        if (clientSync == null || !clientSync.IsAlive || Utility.Players.IsInSameTeam(clientSync, dataSync))
+                            continue;
+
+                        float clientToTargetDistance = Vector3.Distance(client.Pos, data.Pos);
+                        Vector3 distanceVector = client.Pos - data.Pos;
+
+                        if (
+                            clientToTargetDistance <= triggerDistance && (distanceVector.y <= yLimit &&  distanceVector.y >= -yLimit) && (targetPlayerPos == Vector3.zero ||
+                            (minPlayerDist > 0f && clientToTargetDistance < minPlayerDist) || (minPlayerDist == clientToTargetDistance))
+                            ) {
+                            minPlayerDist = clientToTargetDistance;
+                            targetPlayerPos = data.Pos;
+                            continue;
+                        }
+                    }
+                }
+
+                if (targetPlayerPos != Vector3.zero) {
+                    float spinDistance = MovementModule.targetStrafeDistance.GetValue();
+                    float spinSpeed = MovementModule.targetStrafeSpeed.GetValue();
+                    float spinAngle = Time.time * spinSpeed;
+                    Vector3 targetPos = targetPlayerPos + new Vector3(Mathf.Cos(spinAngle) * spinDistance, 0, Mathf.Sin(spinAngle) * spinDistance);
+                    Vector3 accelDir = targetPos - Controll.Pos;
+
+                    float maxAccel = 1f;
+                    if (accelDir.magnitude > maxAccel)
+                        accelDir = accelDir.normalized * maxAccel;
+
+                    Vector3 air2 = Movement.MoveAir(Vector3.zero, Controll.vel);
+                    Vector3 ground2 = Movement.MoveGround(accelDir, Controll.vel);
+                    moved = new Vector3(ground2.x, air2.y, ground2.z);
+                }
+            }
+
             Controll.vel = moved;
 
             if (Controll.vel.magnitude * Controll.speed < 0.01f)
@@ -485,24 +556,29 @@ internal class ClientPatch {
                     Controll.Pos = nextPos;
                 } else if (!Controll.inAir) {
                     Vector3 stepUpPos = Controll.Pos + new Vector3(0, 1f, 0);
-                    Vector3 stepNextPos = stepUpPos + new Vector3(Controll.vel.x * Controll.speed, 0f, Controll.vel.z * Controll.speed);
+                    Vector3 velSpeedX = new(Controll.vel.x * Controll.speed, 0f, 0f);
+                    Vector3 velSpeedZ = new(0f, 0f, Controll.vel.z * Controll.speed);
+                    Vector3 stepNextPos = stepUpPos + Controll.vel * Controll.speed;
                     if (VUtil.isValidBBox(stepNextPos, Controll.radius, Controll.boxheight)) {
+                        stepped = true;
                         Controll.Pos = stepNextPos;
                     } else {
-                        Vector3 nextPosX = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, 0f, 0f);
-                        if (VUtil.isValidBBox(nextPosX, Controll.radius, Controll.boxheight)) {
-                            Controll.Pos = nextPosX;
+                        Vector3 nextPosX2 = Controll.Pos + velSpeedX;
+                        if (VUtil.isValidBBox(nextPosX2, Controll.radius, Controll.boxheight)) {
+                            Controll.Pos = nextPosX2;
                         } else {
-                            Vector3 nextPosZ = Controll.Pos + new Vector3(0f, 0f, Controll.vel.z * Controll.speed);
-                            if (VUtil.isValidBBox(nextPosZ, Controll.radius, Controll.boxheight)) {
-                                Controll.Pos = nextPosZ;
+                            Vector3 nextPosZ2 = Controll.Pos + velSpeedZ;
+                            if (VUtil.isValidBBox(nextPosZ2, Controll.radius, Controll.boxheight)) {
+                                Controll.Pos = nextPosZ2;
                             } else {
-                                Vector3 stepNextPosX = stepUpPos + new Vector3(Controll.vel.x * Controll.speed, 0f, 0f);
+                                Vector3 stepNextPosX = stepUpPos + velSpeedX;
                                 if (VUtil.isValidBBox(stepNextPosX, Controll.radius, Controll.boxheight)) {
+                                    stepped = true;
                                     Controll.Pos = stepNextPosX;
                                 } else {
-                                    Vector3 stepNextPosZ = stepUpPos + new Vector3(0f, 0f, Controll.vel.z * Controll.speed);
+                                    Vector3 stepNextPosZ = stepUpPos + velSpeedZ;
                                     if (VUtil.isValidBBox(stepNextPosZ, Controll.radius, Controll.boxheight)) {
+                                        stepped = true;
                                         Controll.Pos = stepNextPosZ;
                                     }
                                 }
@@ -510,25 +586,30 @@ internal class ClientPatch {
                         }
                     }
                 } else {
-                    Vector3 nextAirPos = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, Controll.vel.y * Controll.speed, Controll.vel.z * Controll.speed);
-                    if (VUtil.isValidBBox(nextAirPos, Controll.radius, Controll.boxheight)) {
-                        Controll.Pos = nextAirPos;
+                    Vector3 nextPosX = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, Controll.vel.y * Controll.speed, 0f);
+                    if (VUtil.isValidBBox(nextPosX, Controll.radius, Controll.boxheight)) {
+                        Controll.Pos = nextPosX;
                     } else {
-                        Vector3 nextPosX = Controll.Pos + new Vector3(Controll.vel.x * Controll.speed, Controll.vel.y * Controll.speed, 0f);
-                        if (VUtil.isValidBBox(nextPosX, Controll.radius, Controll.boxheight)) {
-                            Controll.Pos = nextPosX;
-                        } else {
-                            Vector3 nextPosZ = Controll.Pos + new Vector3(0f, Controll.vel.y * Controll.speed, Controll.vel.z * Controll.speed);
-                            if (VUtil.isValidBBox(nextPosZ, Controll.radius, Controll.boxheight)) {
-                                Controll.Pos = nextPosZ;
-                            }
+                        Vector3 nextPosZ = Controll.Pos + new Vector3(0f, Controll.vel.y * Controll.speed, Controll.vel.z * Controll.speed);
+                        if (VUtil.isValidBBox(nextPosZ, Controll.radius, Controll.boxheight)) {
+                            Controll.Pos = nextPosZ;
                         }
                     }
                 }
             }
         }
 
-        __instance.UpdateMoveJump();
+        if (!stepped) {
+            if (
+                (Controll.inDuckKey && VUtil.isValidBBox(Controll.Pos + Vector3.up, Controll.radius, Controll.boxheight)) ||
+                (!Controll.inDuckKey && VUtil.isValidBBox(Controll.Pos + Vector3.up, Controll.radius, Controll.boxheight))
+                ) {
+                __instance.UpdateMoveJump();
+            } else {
+                Controll.inJumpKey = true;
+                Controll.inJumpKeyPressed = true;
+            }
+        }
 
         float realtime = Time.realtimeSinceStartup;
         Controll.fcurrFrame = realtime - Controll.fdifFrame;
@@ -545,23 +626,80 @@ internal class ClientPatch {
     //    return false;
     //}
 
-    //[HarmonyPatch(typeof(Controll), "UpdateMoveJump")]
+    //[HarmonyPatch(typeof(Client), "recv_restorepos")]
     //[HarmonyPrefix]
-    //private static bool UpdateMoveJump() {
-    //    if (Controll.inJumpKey && !Controll.inJumpKeyPressed) {
-    //        Controll.velocity = new(0, 2.35f, 0);
-    //        Controll.inJumpKeyPressed = true;
-
-    //        Vector3 down = Vector3.down;
-    //        Vector3 mulResult = down * 0.0020000001f;
-    //        Vector3 temp = new(0, mulResult.x, mulResult.y);
-    //        float zVal = mulResult.z;
-    //        float timestart = Time.time;
-    //        Vector3 v8 = new(temp.y, temp.z, zVal);
-    //        VWIK.AddOffset(v8, timestart, 0.5f, false);
-    //    }
+    //private static bool recv_restorepos() {
+    //    if (!TestComponent.test)
+    //        return true;
+    //    Vector3 prevPos = Controll.Pos;
+    //    Controll.Pos = Vector3.zero;
+    //    //Controll.Pos = prevPos;
     //    return false;
     //}
+
+    [HarmonyPatch(typeof(Controll), "UpdateMoveJump")]
+    [HarmonyPrefix]
+    private static bool UpdateMoveJump(Controll __instance) {
+        if (
+            ((Controll.inJumpKey && !Controll.inJumpKeyPressed) || MovementModule.autoJumpToggle.GetValue()) &&
+            !Controll.inAir && Controll.velocity.y <= 0f
+            // && VUtil.isValidBBox(Controll.Pos - Vector3.down, Controll.radius, __instance._border)
+            ) {
+            float jumpVelocityY = 2.35f;
+            Controll.velocity = new Vector3(0.0f, jumpVelocityY, 0.0f);
+            Controll.inJumpKeyPressed = true;
+
+            Vector3 offset = Vector3.down * 0.002f;
+            float timeStart = Time.time;
+            VWIK.AddOffset(offset, timeStart, 0.5f);
+        }
+        return false;
+    }
+
+    //[HarmonyPatch(typeof(Controll), "UpdatePhysics")]
+    //[HarmonyPrefix]
+    private static bool Controll_UpdatePhysics() {
+        if (Controll.trControll == null || Controll.freefly || Controll.pl == null || Controll.pl.team == 2)
+            return false;
+
+        Vector3 prevVelocity = Controll.velocity;
+        Vector3 prevPos = Controll.Pos;
+
+        float verticalDamping = 0f;
+        if (prevVelocity.y > 0f) {
+            float currYVel = prevVelocity.y;
+            Controll.velocity -= Vector3.up * 0.3f;
+            verticalDamping = currYVel * 0.8f;
+        }
+
+        float newY = prevPos.y + verticalDamping - 1f;
+        Vector3 newPos = new(prevPos.x, newY, prevPos.z);
+        if (VUtil.isValidBBox(newPos, Controll.radius, Controll.boxheight)) {
+            Controll.Pos = newPos;
+            Controll.inAir = true;
+            Controll.inAirFrame++;
+        } else {
+            if (VUtil.isHeadContact()) {
+                Controll.velocity = new(prevVelocity.x, 0f, prevVelocity.z);
+            }
+            if (VUtil.isGroundContact()) {
+                if (Controll.inAir)
+                    VWIK.AddOffset(Vector3.down * 0.004f, Time.time, 0.5f);
+                Controll.velocity = new(prevVelocity.x, 0f, prevVelocity.z);
+                Controll.inAir = false;
+                Controll.inAirFrame = 0;
+            }
+            Controll.Pos = new(prevPos.x, Mathf.Floor(prevPos.y), prevPos.z);
+
+            if (VoxelMap.GetBlock(Controll.Pos) != 0) {
+                Vector3 posAbove = Controll.Pos + Vector3.up;
+                if (VUtil.isValidBBox(posAbove, Controll.radius, Controll.boxheight))
+                    Controll.Pos = posAbove;
+            }
+        }
+
+        return false;
+    }
 
     //[HarmonyPatch(typeof(Client), "send_pos_dev")]
     //[HarmonyPrefix]
@@ -687,15 +825,15 @@ internal class ClientPatch {
     [HarmonyPrefix]
     private static void send_entpos(int uid, ref Vector3 pos) {
         //Plugin.Log.LogWarning($"send_entpos {uid}, {pos}");
-        var killType = AdditionalModule.instantGrenadeKill.GetValue();
+        var killType = AdditionalModule.instantGrenadeKillType.GetValue();
         var ignoreSpawnProtect = AdditionalModule.ignoreSpawnProtectToggle.GetValue();
-        if (killType != AdditionalModule.grenadeKillType[0]) {
+        if (killType != AdditionalModule.grenadeKillTypes[0]) {
             Vector3 newPos = Vector3.zero;
             PlayerSync targetSync = null;
-            if (killType == AdditionalModule.grenadeKillType[3] && PlayersModule.targetData != null) {
+            if (killType == AdditionalModule.grenadeKillTypes[3] && PlayersModule.targetData != null && PlayersModule.targetSync != null) {
                 newPos = PlayersModule.targetData.Pos;
-                targetSync = Utility.Players.GetPlayerSyncById(PlayersModule.targetData.idx);
-            } else if (killType == AdditionalModule.grenadeKillType[2]) {
+                targetSync = PlayersModule.targetSync;
+            } else if (killType == AdditionalModule.grenadeKillTypes[2]) {
                 PlayerData targetData = null;
                 int maxPlayers = -1;
                 var sortRange = AdditionalModule.grenadeSortRange.GetValue();
@@ -724,7 +862,7 @@ internal class ClientPatch {
                 }
                 if (targetData != null)
                     newPos = targetData.Pos;
-            } else if (killType == AdditionalModule.grenadeKillType[1]) {
+            } else if (killType == AdditionalModule.grenadeKillTypes[1]) {
                 var clientSync = Utility.Players.GetPlayerSyncById(Controll.pl.idx);
                 int attempts = 0;
                 PlayerData data;
@@ -763,5 +901,51 @@ internal class ClientPatch {
     [HarmonyPrefix]
     private static bool Application_Quit() {
         return false;
+    }
+
+    //[HarmonyPatch(typeof(MasterClient), "ProcessData")]
+    //[HarmonyPrefix]
+    //private static void MasterClient_ProcessData() {
+    //    //Plugin.Log.LogWarning("Buffer:");
+    //    //for (int i = 0; i < MasterClient.buffer.Length; i++) {
+    //    //    Plugin.Log.LogWarning($"[{i}] = {MasterClient.buffer[i]}");
+    //    //}
+    //    if (MasterClient.len >= 2) {
+    //        //if (MasterClient.buffer[0] == 0xF5)
+    //            if (MasterClient.buffer[1] == 0xA)
+    //                Plugin.Log.LogWarning("ProcessData[0xA] Client TCP Drop");
+    //    }
+    //}
+
+    [HarmonyPatch(typeof(PlayerPrefs), "GetFloat", [typeof(string)])]
+    [HarmonyPostfix]
+    private static void PlayerPrefs_GetFloat(string key, float __result) {
+        Plugin.Log.LogWarning($"PlayerPrefs.GetFloat[{key}] -> {__result}");
+    }
+    [HarmonyPatch(typeof(PlayerPrefs), "GetInt", [typeof(string)])]
+    [HarmonyPostfix]
+    private static void PlayerPrefs_GetInt(string key, int __result) {
+        Plugin.Log.LogWarning($"PlayerPrefs.GetInt[{key}] -> {__result}");
+    }
+    [HarmonyPatch(typeof(PlayerPrefs), "GetString", [typeof(string)])]
+    [HarmonyPostfix]
+    private static void PlayerPrefs_GetString(string key, string __result) {
+        if (key.StartsWith("set_") && key.EndsWith("_uid")) return;
+        Plugin.Log.LogWarning($"PlayerPrefs.GetString[{key}] -> {__result}");
+    }
+    [HarmonyPatch(typeof(PlayerPrefs), "SetFloat", [typeof(string), typeof(float)])]
+    [HarmonyPrefix]
+    private static void PlayerPrefs_SetFloat(string key, float value) {
+        Plugin.Log.LogWarning($"PlayerPrefs.SetFloat[{key}] -> {value}");
+    }
+    [HarmonyPatch(typeof(PlayerPrefs), "SetInt", [typeof(string), typeof(int)])]
+    [HarmonyPrefix]
+    private static void PlayerPrefs_SetInt(string key, int value) {
+        Plugin.Log.LogWarning($"PlayerPrefs.SetInt[{key}] -> {value}");
+    }
+    [HarmonyPatch(typeof(PlayerPrefs), "SetString", [typeof(string), typeof(string)])]
+    [HarmonyPrefix]
+    private static void PlayerPrefs_SetString(string key, string value) {
+        Plugin.Log.LogWarning($"PlayerPrefs.SetString[{key}] -> {value}");
     }
 }

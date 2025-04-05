@@ -58,6 +58,7 @@ internal class PlayersPatch {
 
         PlayerData data = Utility.Players.GetPlayerById(id);
         if (data != null) {
+            Plugin.OnPlayerSpawn.Trigger([data]);
             PlayerSync playerSync = Utility.Players.GetPlayerSyncById(id);
             if (playerSync != null) {
                 playerSync.IsAlive = true;
@@ -192,4 +193,16 @@ internal class PlayersPatch {
     //private static void PLH_ClearWeapon(PlayerData p) {
     //    Plugin.Log.LogWarning($"ClearWeapon: {p.idx}");
     //}
+
+    [HarmonyPatch(typeof(PLH), "UpdateVisible")]
+    [HarmonyPostfix]
+    private static void PLH_UpdateVisible() {
+        if (AdditionalModule.alwaysRenderCharactersToggle.GetValue()) {
+            for (int i = 0; i < PLH.player.Count; i++) {
+                PlayerData data = PLH.player[i];
+                if (data == null) continue;
+                data.visible = true;
+            }
+        }
+    }
 }

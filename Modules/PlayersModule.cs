@@ -3,6 +3,7 @@ using Player;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TestClient.Interface;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,11 +14,22 @@ internal class PlayersModule : MonoBehaviour {
     internal static OptionModule<string> targetTextPlayer;
 
     internal static PlayerData targetData;
+    internal static PlayerSync targetSync;
 
     void Awake() {
         targetPlayer = ExploitPanel.configurableModules["TargetPlayer"] as DropdownModule;
         targetTextPlayer = ExploitPanel.configurableModules["TargetTextPlayer"] as OptionModule<string>;
 
+        Plugin.OnPlayerSpawn.OnEvent += (args) => {
+            PlayerData playerData = (PlayerData)args[0];
+            Thread spawnProtectThread = new Thread(() => {
+                Thread.Sleep(5000);
+                if (playerData != null)
+                    playerData.spawnprotect = false;
+            });
+            spawnProtectThread.IsBackground = true;
+            spawnProtectThread.Start();
+        };
         Plugin.OnPlayerJoin.OnEvent += (args) => {
             var data = (PlayerData)args[0];
             if (data.idx == Controll.pl.idx) return;
@@ -30,11 +42,14 @@ internal class PlayersModule : MonoBehaviour {
         Plugin.OnPlayerLeave.OnEvent += (args) => {
             var data = (PlayerData)args[0];
             targetPlayer.RemoveOption(data.name);
-            if (targetData == data)
+            if (targetData == data) {
                 targetData = null;
+                targetSync = null;
+            }
         };
         Plugin.OnPlayersClear.OnEvent += (_) => {
             targetData = null;
+            targetSync = null;
             targetPlayer.ClearOptions();
             targetPlayer.AddOption("None");
             targetPlayer.Dropdown.value = 0;

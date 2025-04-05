@@ -110,8 +110,11 @@ internal class AimModule : MonoBehaviour {
                 continue;
             }
 
-            var ignoreProtect = rageBotIgnoreSpawnProtectToggle.GetValue();
-            var ignoreSelfDeath = rageBotIgnoreSelfDeathToggle.GetValue();
+            bool ignoreProtect = rageBotIgnoreSpawnProtectToggle.GetValue();
+            bool ignoreSelfDeath = rageBotIgnoreSelfDeathToggle.GetValue();
+            bool isVoxelResolution = voxelResolutionToggle.GetValue();
+            string tRageBotType = rageBotType.GetValue();
+            int iVoxelResolution = (int)voxelResolution.GetValue();
 
             float lastCameraY = 0f;
             Vector3 cameraPosition = rageBotCast.GetValue() == rageBotCasts[0] ? csCam.position : client.Pos;
@@ -120,6 +123,8 @@ internal class AimModule : MonoBehaviour {
 
             if (wideRange) {
                 float range = wideCameraRange.GetValue();
+                //Bounds bounds = new(cameraPosition, Vector3.one * range);
+                //samplePoints = GetSamplePoints(bounds, iVoxelResolution);
                 samplePoints = [
                     cameraPosition,
                     cameraPosition + Vector3.up * range,
@@ -130,9 +135,6 @@ internal class AimModule : MonoBehaviour {
                     cameraPosition + Vector3.down * range, // better would be even remove it but sometimes good
                 ];
             }
-
-            bool isVoxelResolution = voxelResolutionToggle.GetValue();
-            int iVoxelResolution = (int)voxelResolution.GetValue();
 
             for (int i = 0; i < PLH.player.Length; i++) {
                 var player = PLH.player[i];
@@ -181,7 +183,7 @@ internal class AimModule : MonoBehaviour {
                                 csCam.position = point;
                             }
 
-                            if (client.currweapon != null && isWeapon && rageBotType.GetValue() == rageBotTypes[1] && Main.Player != null) {
+                            if (client.currweapon != null && isWeapon && tRageBotType == rageBotTypes[1] && Main.Player != null) {
                                 if (wInv.ammo > 0) {
                                     wInv.ammo--;
                                     Main.Player.SetAmmo(wInv.ammo, wInv.ammo);
@@ -190,14 +192,14 @@ internal class AimModule : MonoBehaviour {
 
                             lastFireTime = Time.time;
 
-                            if (rageBotType.GetValue() == rageBotTypes[0]) {
+                            if (tRageBotType == rageBotTypes[0]) {
                                 csCam.LookAt(hitPoint);
                                 if (isWeapon) {
                                     Controll.cs.UpdateWeaponAttack();
                                 } else if (wInfo != null && wInfo.slot == 2) {
                                     Controll.cs.UpdateShovelAttack();
                                 }
-                            } else if (rageBotType.GetValue() == rageBotTypes[1]) {
+                            } else if (tRageBotType == rageBotTypes[1]) {
                                 var hitData = playerBodyPart.GetComponent<HitData>();
                                 if (hitData == null)
                                     continue;
@@ -236,6 +238,10 @@ internal class AimModule : MonoBehaviour {
                         return true;
                     }
                 }
+                //if (Utility.CustomCast.Blockcast(cameraPosition, point)) {
+                //    hitPoint = point;
+                //    return true;
+                //}
             }
         } else {
             if (Physics.Linecast(cameraPosition, bounds.center, out RaycastHit hit)) {
